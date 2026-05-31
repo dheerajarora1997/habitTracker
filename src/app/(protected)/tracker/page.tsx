@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useGetTodayRecordQuery, useUpsertRecordMutation } from '@/store/apiSlice';
-import { Check, Footprints, ShieldCheck, Flame, BookOpen, Utensils, Dumbbell, GlassWater, Sparkles, Smile, MessageSquareQuote } from 'lucide-react';
+import { Check, Footprints, ShieldCheck, Flame, BookOpen, Utensils, Dumbbell, GlassWater, Sparkles, Smile, MessageSquareQuote, ChevronLeft, ChevronRight, Calendar } from 'lucide-react';
 
 const HABIT_DEFINITIONS = [
   { key: 'noFastFood', label: 'No Fast Food', desc: 'Avoided processed or deep-fried fast food items', icon: Utensils, color: 'text-orange-400 bg-orange-500/10' },
@@ -14,7 +14,12 @@ const HABIT_DEFINITIONS = [
 ];
 
 export default function DailyTrackerPage() {
-  const { data: recordRes, isLoading: isRecordLoading } = useGetTodayRecordQuery();
+  const getTodayStr = () => {
+    return new Date().toISOString().split('T')[0];
+  };
+
+  const [selectedDate, setSelectedDate] = useState(() => getTodayStr());
+  const { data: recordRes, isLoading: isRecordLoading } = useGetTodayRecordQuery(selectedDate);
   const [upsertRecord, { isLoading: isSaving }] = useUpsertRecordMutation();
 
   const [steps, setSteps] = useState(0);
@@ -31,22 +36,63 @@ export default function DailyTrackerPage() {
   const [errorMsg, setErrorMsg] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
 
-  // Prefill states when today's record loads from the API
+  // Timezone-safe date parsing/formatting
+  const parseDateStr = (dateStr: string) => {
+    const [year, month, day] = dateStr.split('-').map(Number);
+    return new Date(year, month - 1, day);
+  };
+
+  const formatDateStr = (date: Date) => {
+    const yyyy = date.getFullYear();
+    const mm = String(date.getMonth() + 1).padStart(2, '0');
+    const dd = String(date.getDate()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd}`;
+  };
+
+  const handlePrevDay = () => {
+    const d = parseDateStr(selectedDate);
+    d.setDate(d.getDate() - 1);
+    setSelectedDate(formatDateStr(d));
+  };
+
+  const handleNextDay = () => {
+    const todayStr = getTodayStr();
+    if (selectedDate === todayStr) return;
+    const d = parseDateStr(selectedDate);
+    d.setDate(d.getDate() + 1);
+    const nextDateStr = formatDateStr(d);
+    if (nextDateStr <= todayStr) {
+      setSelectedDate(nextDateStr);
+    }
+  };
+
+  const handleSnapToToday = () => {
+    setSelectedDate(getTodayStr());
+  };
+
+  // Prefill states when the record loads from the API
   useEffect(() => {
     if (recordRes?.record) {
       const rec = recordRes.record;
       setSteps(rec.steps || 0);
       setNotes(rec.notes || '');
       
-      const newHabits = { ...habits };
+      const newHabits = {
+        noFastFood: false,
+        hitGym: false,
+        noAlcohol: false,
+        socialMediaDetox: false,
+        learnStudy: false,
+        noSugar: false,
+        drinkWater: 0,
+      };
       Object.keys(newHabits).forEach((key) => {
         if (rec.habits && rec.habits[key] !== undefined) {
-          newHabits[key] = rec.habits[key];
+          (newHabits as any)[key] = rec.habits[key];
         }
       });
       setHabits(newHabits);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [recordRes]);
 
   const handleToggleHabit = (key: string) => {
@@ -81,18 +127,18 @@ export default function DailyTrackerPage() {
     setErrorMsg('');
     setSuccessMsg('');
 
-    const todayStr = new Date().toISOString().split('T')[0];
-
     try {
       const res = await upsertRecord({
         steps,
         habits,
         notes: notes.trim(),
-        date: todayStr,
+        date: selectedDate,
       }).unwrap();
 
       if (res.success) {
-        setSuccessMsg(`Habit progress recorded! Today's score: +${totalTodayPoints} points. Streak: ${res.streak} days.`);
+        const isTodaySelected = selectedDate === getTodayStr();
+        const dateLabel = isTodaySelected ? "Today's" : `Progress for ${selectedDate}`;
+        setSuccessMsg(`Habit progress recorded! ${dateLabel} score: +${totalTodayPoints} points. Streak: ${res.streak} days.`);
         window.scrollTo({ top: 0, behavior: 'smooth' });
       }
     } catch (err: any) {
@@ -105,13 +151,14 @@ export default function DailyTrackerPage() {
       <div className="flex-1 flex items-center justify-center min-h-[50vh] text-zinc-400">
         <div className="flex flex-col items-center gap-3">
           <div className="w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
-          <p className="text-sm font-semibold tracking-wide">Syncing today&apos;s log...</p>
+          <p className="text-sm font-semibold tracking-wide">Syncing daily log...</p>
         </div>
       </div>
     );
   }
 
-  const todayDateStr = new Date().toLocaleDateString(undefined, {
+  const selectedDateObj = parseDateStr(selectedDate);
+  const formattedSelectedDate = selectedDateObj.toLocaleDateString(undefined, {
     weekday: 'long',
     month: 'short',
     day: 'numeric',
@@ -125,11 +172,60 @@ export default function DailyTrackerPage() {
 
       <div className="mb-6 text-left">
         <h1 className="text-3xl font-extrabold text-white tracking-tight flex items-center gap-2">
-          Log Today&apos;s habits
+          {selectedDate === getTodayStr() ? "Log Today's habits" : "Log past habits"}
         </h1>
         <p className="text-zinc-400 text-sm mt-1">
-          {todayDateStr} • Today&apos;s Score: <span className="text-indigo-400 font-bold font-mono text-glow-primary text-md">+{totalTodayPoints} pts</span>
+          {formattedSelectedDate} • Daily Score: <span className="text-indigo-400 font-bold font-mono text-glow-primary text-md">+{totalTodayPoints} pts</span>
         </p>
+      </div>
+
+      {/* Date Selector Control Panel */}
+      <div className="glass-panel p-4 rounded-2xl border border-zinc-900 mb-6 flex flex-wrap items-center justify-between gap-4 relative overflow-hidden">
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={handlePrevDay}
+            className="p-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-400 hover:text-white transition-all shrink-0"
+          >
+            <ChevronLeft className="h-5 w-5" />
+          </button>
+
+          {/* Date Selector input wrapped in a beautiful label */}
+          <div className="relative flex items-center gap-2 px-3.5 py-2 rounded-xl bg-zinc-900/60 border border-zinc-800/80 text-white font-bold text-sm select-none hover:bg-zinc-900 transition-all cursor-pointer">
+            <Calendar className="h-4 w-4 text-indigo-400" />
+            <span>{formattedSelectedDate}</span>
+            <input
+              type="date"
+              max={getTodayStr()}
+              value={selectedDate}
+              onChange={(e) => {
+                if (e.target.value) {
+                  setSelectedDate(e.target.value);
+                }
+              }}
+              className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
+            />
+          </div>
+
+          <button
+            type="button"
+            onClick={handleNextDay}
+            disabled={selectedDate === getTodayStr()}
+            className="p-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-400 hover:text-white transition-all shrink-0 disabled:opacity-30 disabled:hover:bg-zinc-900 disabled:hover:text-zinc-500 disabled:cursor-not-allowed"
+          >
+            <ChevronRight className="h-5 w-5" />
+          </button>
+        </div>
+
+        {selectedDate !== getTodayStr() && (
+          <button
+            type="button"
+            onClick={handleSnapToToday}
+            className="px-4 py-2 rounded-xl bg-indigo-600/10 hover:bg-indigo-600/20 border border-indigo-500/20 text-indigo-400 font-bold text-xs transition-all shrink-0 glow-indigo"
+          >
+            Back to Today
+          </button>
+        )}
       </div>
 
       {successMsg && (
@@ -270,11 +366,11 @@ export default function DailyTrackerPage() {
         <div className="glass-panel p-6 rounded-2xl border border-zinc-900">
           <h3 className="text-md font-bold text-white flex items-center gap-2 mb-3">
             <MessageSquareQuote className="h-4.5 w-4.5 text-zinc-500" />
-            Today&apos;s Reflections <span className="text-zinc-500 text-xs font-normal">(Optional)</span>
+            {selectedDate === getTodayStr() ? "Today's Reflections" : "Reflections for this Day"} <span className="text-zinc-500 text-xs font-normal">(Optional)</span>
           </h3>
           <textarea
             rows={3}
-            placeholder="Log your thoughts, challenges, or highlights of today..."
+            placeholder={selectedDate === getTodayStr() ? "Log your thoughts, challenges, or highlights of today..." : "Log your thoughts, challenges, or highlights of this day..."}
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             className="w-full rounded-xl border border-zinc-800 bg-zinc-900/40 p-4 text-sm text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
@@ -293,7 +389,9 @@ export default function DailyTrackerPage() {
             ) : (
               <>
                 <Flame className="h-5 w-5 text-orange-400 animate-streak-fire" />
-                Save Today&apos;s Progress (+{totalTodayPoints} pts)
+                {selectedDate === getTodayStr()
+                  ? `Save Today's Progress (+${totalTodayPoints} pts)`
+                  : `Save Progress for ${selectedDate} (+${totalTodayPoints} pts)`}
               </>
             )}
           </button>

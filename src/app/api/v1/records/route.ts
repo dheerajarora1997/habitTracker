@@ -96,19 +96,13 @@ export async function POST(request: NextRequest) {
 
     const { steps, habits, notes, date } = result.data;
 
-    // Enforce "edit today's record until midnight" limit
+    // Enforce "cannot log habits for future dates" limit
     const todayStr = new Date().toISOString().split('T')[0];
-    if (date !== todayStr) {
-      // Allow minor threshold block for timezones, but restrict arbitrary history writing
-      const diffDays = Math.abs(
-        (new Date(date).getTime() - new Date(todayStr).getTime()) / (1000 * 60 * 60 * 24)
+    if (date > todayStr) {
+      return NextResponse.json(
+        { error: 'Cannot log habits for future dates.' },
+        { status: 400 }
       );
-      if (diffDays > 1.1) {
-        return NextResponse.json(
-          { error: 'You are only allowed to edit today\'s habit log.' },
-          { status: 400 }
-        );
-      }
     }
 
     // 1. Calculate scoring

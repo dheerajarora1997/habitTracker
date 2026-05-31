@@ -70,8 +70,8 @@ export const apiSlice = createApi({
     }),
 
     // Daily Habit Records
-    getTodayRecord: builder.query<{ success: boolean; record: any }, void>({
-      query: () => '/records/today',
+    getTodayRecord: builder.query<{ success: boolean; record: any }, string | void>({
+      query: (date) => date ? `/records/today?date=${date}` : '/records/today',
       providesTags: ['Record'],
     }),
     upsertRecord: builder.mutation<{ success: boolean; record: any; streak: number }, { steps: number; habits: any; notes?: string; date: string }>({
