@@ -35,7 +35,7 @@ Users can track the following habits daily:
 | Social Media Detox   | 1 Point |
 | Learn / Study        | 1 Point |
 | No Sugar             | 1 Point |
-| Drink 2 Liters Water | 1 Point |
+| Drink 1 Liters Water | 1 Point |
 
 ### Step Tracking Formula
 

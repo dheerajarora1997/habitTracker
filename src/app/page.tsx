@@ -139,7 +139,7 @@ export default function Home() {
                 <span className="text-indigo-400 font-semibold">+1 Point</span>
               </div>
               <div className="flex justify-between items-center p-3 rounded-xl bg-zinc-900/50 border border-zinc-800/40">
-                <span className="text-zinc-300 font-medium">Drink 2 Liters Water</span>
+                <span className="text-zinc-300 font-medium">Drink 1 Liters Water</span>
                 <span className="text-indigo-400 font-semibold">+1 Point</span>
               </div>
             </div>
