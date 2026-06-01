@@ -4,7 +4,7 @@ import User from '@/models/User';
 import { getVerifiedTokenData } from '@/lib/auth';
 import { z } from 'zod';
 
-const updateProfileSchema = z.object({
+export const updateProfileSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
   avatarUrl: z.string().url().or(z.string().length(0)).optional(),
 });

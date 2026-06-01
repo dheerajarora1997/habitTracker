@@ -37,7 +37,7 @@ export default function ProfilePage() {
     try {
       const res = await updateProfile({
         name: name.trim(),
-        avatarUrl: avatarUrl.trim() || undefined,
+        avatarUrl: avatarUrl.trim(),
       }).unwrap();
 
       if (res.success && res.user) {
@@ -101,7 +101,11 @@ export default function ProfilePage() {
         <div className="glass-panel p-6 rounded-2xl border border-zinc-900 shadow-2xl space-y-6">
           <div className="flex items-center gap-4">
             <div className="w-16 h-16 rounded-2xl bg-indigo-900/30 border border-indigo-500/20 flex items-center justify-center font-black text-indigo-300 text-xl shadow-inner uppercase">
-              {name.slice(0, 2)}
+              {avatarUrl ? (
+                <img src={avatarUrl} alt="" className="w-full h-full object-cover rounded-2xl" />
+              ) : (
+                name.slice(0, 2)
+              )}
             </div>
             <div>
               <h3 className="text-lg font-bold text-white">{name || 'Habit Partner'}</h3>

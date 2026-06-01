@@ -19,7 +19,6 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
   const isAuthenticated = useSelector(selectIsAuthenticated);
   const authLoading = useSelector(selectAuthLoading);
   const user = useSelector(selectCurrentUser);
-
   const [logout] = useLogoutMutation();
 
   // Enforce session check
@@ -112,7 +111,11 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
             <div className="flex items-center gap-3">
               <div className="flex items-center gap-2 mr-1">
                 <div className="w-8 h-8 rounded-full bg-indigo-900/10 dark:bg-indigo-900/40 border border-indigo-500/30 flex items-center justify-center font-bold text-indigo-600 dark:text-indigo-300 text-xs shadow-inner">
-                  {user?.name ? user.name.slice(0, 2).toUpperCase() : 'HP'}
+                  {user?.avatarUrl ? (
+                    <img src={user.avatarUrl} alt="" className="w-full h-full object-cover rounded-2xl" />
+                  ) : (
+                    user?.name ? user.name.slice(0, 2).toUpperCase() : 'HP'
+                  )}
                 </div>
                 <div className="hidden lg:block text-left">
                   <div className="text-xs font-bold text-zinc-900 dark:text-white max-w-[120px] truncate">{user?.name}</div>
