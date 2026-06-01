@@ -6,6 +6,8 @@ import { store } from '@/store/store';
 import { useLazyCheckMeQuery } from '@/store/apiSlice';
 import { setCredentials, clearCredentials, setLoading } from '@/store/authSlice';
 
+import { ThemeProvider } from './ThemeProvider';
+
 function SessionLoader({ children }: { children: React.ReactNode }) {
   const [triggerCheckMe] = useLazyCheckMeQuery();
 
@@ -39,7 +41,9 @@ function SessionLoader({ children }: { children: React.ReactNode }) {
 export default function Providers({ children }: { children: React.ReactNode }) {
   return (
     <Provider store={store}>
-      <SessionLoader>{children}</SessionLoader>
+      <ThemeProvider>
+        <SessionLoader>{children}</SessionLoader>
+      </ThemeProvider>
     </Provider>
   );
 }

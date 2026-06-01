@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useGetTodayRecordQuery, useUpsertRecordMutation } from '@/store/apiSlice';
 import { Check, Footprints, ShieldCheck, Flame, BookOpen, Utensils, Dumbbell, GlassWater, Sparkles, Smile, MessageSquareQuote, ChevronLeft, ChevronRight, Calendar } from 'lucide-react';
+import { useTheme } from '@/components/layout/ThemeProvider';
 
 const HABIT_DEFINITIONS = [
   { key: 'noFastFood', label: 'No Fast Food', desc: 'Avoided processed or deep-fried fast food items', icon: Utensils, color: 'text-orange-400 bg-orange-500/10' },
@@ -14,6 +15,7 @@ const HABIT_DEFINITIONS = [
 ];
 
 export default function DailyTrackerPage() {
+  const { theme } = useTheme();
   const getTodayStr = () => {
     return new Date().toISOString().split('T')[0];
   };
@@ -165,6 +167,10 @@ export default function DailyTrackerPage() {
     year: 'numeric',
   });
 
+  const trackBg = theme === 'dark' ? '#27272a' : '#e4e4e7';
+  const primaryColor = theme === 'dark' ? '#6366f1' : '#4f46e5';
+  const cyanColor = theme === 'dark' ? '#22d3ee' : '#06b6d4';
+
   return (
     <div className="flex-1 max-w-4xl mx-auto w-full relative">
       {/* Visual background lights */}
@@ -243,7 +249,7 @@ export default function DailyTrackerPage() {
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Steps Slider Section */}
-        <div className="glass-panel p-6 rounded-2xl border border-zinc-900 relative">
+        <div className="glass-panel p-6 rounded-2xl border border-zinc-200 dark:border-zinc-900 relative">
           <div className="flex justify-between items-center mb-4">
             <div>
               <h3 className="text-lg font-bold text-white flex items-center gap-2">
@@ -267,9 +273,9 @@ export default function DailyTrackerPage() {
               value={steps}
               onChange={(e) => setSteps(Number(e.target.value))}
               style={{
-                background: `linear-gradient(to right, #6366f1 0%, #6366f1 ${(steps / 30000) * 100}%, #27272a ${(steps / 30000) * 100}%, #27272a 100%)`
+                background: `linear-gradient(to right, ${primaryColor} 0%, ${primaryColor} ${(steps / 30000) * 100}%, ${trackBg} ${(steps / 30000) * 100}%, ${trackBg} 100%)`
               }}
-              className="w-full h-2 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-indigo-500 transition-all duration-150"
+              className="w-full h-2 bg-zinc-200 dark:bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-indigo-600 dark:accent-indigo-500 transition-all duration-150"
             />
             <div className="flex justify-between text-[10px] text-zinc-500 font-mono font-bold mt-2">
               <span>0 steps</span>
@@ -281,17 +287,17 @@ export default function DailyTrackerPage() {
         </div>
 
         {/* Water Range Slider Section */}
-        <div className="glass-panel p-6 rounded-2xl border border-zinc-900 relative">
+        <div className="glass-panel p-6 rounded-2xl border border-zinc-200 dark:border-zinc-900 relative">
           <div className="flex justify-between items-center mb-4">
             <div>
               <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                <GlassWater className="h-5 w-5 text-cyan-400" />
+                <GlassWater className="h-5 w-5 text-cyan-500 dark:text-cyan-400" />
                 Water Drank
               </h3>
               <p className="text-xs text-zinc-500 mt-0.5">0.5 Points rewarded for every 0.5 Liters (0.5 L) logged</p>
             </div>
             <div className="text-right">
-              <div className="text-2xl font-black text-cyan-400 font-mono text-glow-emerald">
+              <div className="text-2xl font-black text-cyan-500 dark:text-cyan-400 font-mono text-glow-emerald">
                 {habits.drinkWater || 0} <span className="text-xs text-zinc-500 font-bold">L</span>
               </div>
               <div className="text-[10px] text-zinc-500 font-semibold font-mono tracking-wider">
@@ -309,9 +315,9 @@ export default function DailyTrackerPage() {
               value={habits.drinkWater || 0}
               onChange={(e) => setHabits(prev => ({ ...prev, drinkWater: Number(e.target.value) }))}
               style={{
-                background: `linear-gradient(to right, #22d3ee 0%, #22d3ee ${((habits.drinkWater || 0) / 6) * 100}%, #27272a ${((habits.drinkWater || 0) / 6) * 100}%, #27272a 100%)`
+                background: `linear-gradient(to right, ${cyanColor} 0%, ${cyanColor} ${((habits.drinkWater || 0) / 6) * 100}%, ${trackBg} ${((habits.drinkWater || 0) / 6) * 100}%, ${trackBg} 100%)`
               }}
-              className="w-full h-2 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-cyan-500 transition-all duration-150"
+              className="w-full h-2 bg-zinc-200 dark:bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-cyan-600 dark:accent-cyan-500 transition-all duration-150"
             />
             <div className="flex justify-between text-[10px] text-zinc-500 font-mono font-bold mt-2">
               <span>0 L</span>
@@ -363,9 +369,9 @@ export default function DailyTrackerPage() {
         </div>
 
         {/* Notes Text Area */}
-        <div className="glass-panel p-6 rounded-2xl border border-zinc-900">
+        <div className="glass-panel p-6 rounded-2xl border border-zinc-200 dark:border-zinc-900">
           <h3 className="text-md font-bold text-white flex items-center gap-2 mb-3">
-            <MessageSquareQuote className="h-4.5 w-4.5 text-zinc-500" />
+            <MessageSquareQuote className="h-4.5 w-4.5 text-zinc-550 dark:text-zinc-550" />
             {selectedDate === getTodayStr() ? "Today's Reflections" : "Reflections for this Day"} <span className="text-zinc-500 text-xs font-normal">(Optional)</span>
           </h3>
           <textarea
@@ -373,7 +379,7 @@ export default function DailyTrackerPage() {
             placeholder={selectedDate === getTodayStr() ? "Log your thoughts, challenges, or highlights of today..." : "Log your thoughts, challenges, or highlights of this day..."}
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
-            className="w-full rounded-xl border border-zinc-800 bg-zinc-900/40 p-4 text-sm text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
+            className="w-full rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/40 p-4 text-sm text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
           />
         </div>
 

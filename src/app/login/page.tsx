@@ -5,10 +5,12 @@ import { useRouter } from 'next/navigation';
 import { useSelector } from 'react-redux';
 import { useRequestOtpMutation } from '@/store/apiSlice';
 import { selectIsAuthenticated, selectAuthLoading } from '@/store/authSlice';
-import { Phone, ArrowRight, Activity, ShieldCheck } from 'lucide-react';
+import { Phone, ArrowRight, Activity, ShieldCheck, Sun, Moon } from 'lucide-react';
+import { useTheme } from '@/components/layout/ThemeProvider';
 
 export default function LoginPage() {
   const router = useRouter();
+  const { theme, toggleTheme } = useTheme();
   const [phoneNumber, setPhoneNumber] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
@@ -54,7 +56,7 @@ export default function LoginPage() {
 
   if (authLoading) {
     return (
-      <div className="flex-1 flex items-center justify-center bg-zinc-950 text-zinc-400">
+      <div className="flex-1 flex items-center justify-center bg-zinc-50 dark:bg-zinc-950 text-zinc-600 dark:text-zinc-400">
         <div className="flex flex-col items-center gap-3">
           <div className="w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
           <p className="text-sm font-medium tracking-wide">Securing connection...</p>
@@ -64,7 +66,22 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex-1 flex flex-col justify-center py-12 sm:px-6 lg:px-8 bg-zinc-950 relative overflow-hidden">
+    <div className="flex-1 flex flex-col justify-center py-12 sm:px-6 lg:px-8 bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 relative overflow-hidden transition-colors duration-200">
+      {/* Theme Toggle Button */}
+      <div className="absolute top-4 right-4 z-20">
+        <button
+          onClick={toggleTheme}
+          className="p-2 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/50 text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-all text-xs flex items-center justify-center cursor-pointer shadow-sm hover:shadow-md"
+          title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+        >
+          {theme === 'dark' ? (
+            <Sun className="h-4.5 w-4.5 text-amber-500 animate-pulse" />
+          ) : (
+            <Moon className="h-4.5 w-4.5 text-indigo-500" />
+          )}
+        </button>
+      </div>
+
       {/* Decorative ambient glowing backdrops */}
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 rounded-full bg-indigo-900/10 blur-[120px] pointer-events-none"></div>
       <div className="absolute bottom-1/4 left-1/3 w-80 h-80 rounded-full bg-emerald-900/5 blur-[100px] pointer-events-none"></div>
@@ -72,16 +89,16 @@ export default function LoginPage() {
       <div className="sm:mx-auto sm:w-full sm:max-w-md z-10">
         <div className="flex justify-center items-center gap-2 mb-4">
           <div className="bg-indigo-600/10 p-2 rounded-xl border border-indigo-500/20">
-            <Activity className="h-7 w-7 text-indigo-400" />
+            <Activity className="h-7 w-7 text-indigo-500 dark:text-indigo-400" />
           </div>
-          <span className="text-xl font-bold tracking-tight bg-gradient-to-r from-indigo-200 via-indigo-400 to-indigo-100 bg-clip-text text-transparent">
+          <span className="text-xl font-bold tracking-tight bg-gradient-to-r from-indigo-600 via-indigo-550 to-violet-600 dark:from-indigo-200 dark:via-indigo-400 dark:to-indigo-100 bg-clip-text text-transparent">
             HABITPARTNER
           </span>
         </div>
-        <h2 className="text-center text-3xl font-extrabold text-white tracking-tight">
+        <h2 className="text-center text-3xl font-extrabold text-zinc-900 dark:text-white tracking-tight">
           Welcome back
         </h2>
-        <p className="mt-2 text-center text-sm text-zinc-400">
+        <p className="mt-2 text-center text-sm text-zinc-650 dark:text-zinc-400">
           Sign in or register instantly with your phone number.
         </p>
       </div>
@@ -90,12 +107,12 @@ export default function LoginPage() {
         <div className="glass-panel py-8 px-6 sm:px-10 rounded-2xl shadow-2xl">
           <form className="space-y-6" onSubmit={handleSubmit}>
             <div>
-              <label htmlFor="phone" className="block text-sm font-medium text-zinc-300">
+              <label htmlFor="phone" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
                 Phone Number
               </label>
               <div className="mt-2 relative rounded-xl shadow-sm">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Phone className="h-5 w-5 text-zinc-500" aria-hidden="true" />
+                  <Phone className="h-5 w-5 text-zinc-450" aria-hidden="true" />
                 </div>
                 <input
                   type="tel"
@@ -104,7 +121,7 @@ export default function LoginPage() {
                   placeholder="e.g. +19998887766 or 9998887766"
                   value={phoneNumber}
                   onChange={(e) => setPhoneNumber(e.target.value)}
-                  className="block w-full pl-10 pr-3 py-3 border border-zinc-800 rounded-xl bg-zinc-900/50 text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all text-sm"
+                  className="block w-full pl-10 pr-3 py-3 border border-zinc-200 dark:border-zinc-800 rounded-xl bg-white dark:bg-zinc-900/50 text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all text-sm"
                 />
               </div>
             </div>
@@ -125,7 +142,7 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full flex justify-center items-center gap-2 py-3 px-4 border border-transparent rounded-xl shadow-lg text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all glow-indigo"
+                className="w-full flex justify-center items-center gap-2 py-3 px-4 border border-transparent rounded-xl shadow-lg text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all glow-indigo cursor-pointer"
               >
                 {isLoading ? (
                   <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
@@ -139,9 +156,9 @@ export default function LoginPage() {
             </div>
           </form>
 
-          <div className="mt-6 border-t border-zinc-800 pt-6">
+          <div className="mt-6 border-t border-zinc-200 dark:border-zinc-800 pt-6">
             <div className="flex items-start gap-2.5 text-xs text-zinc-500">
-              <ShieldCheck className="h-4 w-4 text-indigo-500/80 shrink-0" />
+              <ShieldCheck className="h-4 w-4 text-indigo-500/80 shrink-0 animate-pulse" />
               <p>
                 No password required. We secure your session with a Time-based One Time Password (OTP). Your information is fully encrypted.
               </p>
